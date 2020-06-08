@@ -5,6 +5,9 @@ import { getConnection } from "typeorm";
  * Block user with email id of that specific user
  */
 export class BlockUserService {
+
+  constructor(){
+  }
   public static async blockUser(email: string, blockedUserEmail: string) {
     try {
 // Find the block user 
@@ -18,20 +21,19 @@ export class BlockUserService {
         .getOne();
 
         console.log("user --> " + user);
-        
-        
 
-      
+        const blockId = user.id;
+        
+      // const afterBlocking = await getConnection()
+      //   .createQueryBuilder()
+      //   .insert()
+      //   .into(MyUser)
+      //   .update({
+      //     blockedByUserId.push(blockId);
+      //   })
+
       const afterBlocking = await getConnection()
         .createQueryBuilder()
-        .update(MyUser)
-        .set({
-          blockedByUserId: [user.id],
-        })
-        .where({
-          email: email,
-        })
-        .execute();
 
       console.log("After blocking User " + afterBlocking);
 

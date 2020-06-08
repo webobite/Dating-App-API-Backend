@@ -2,12 +2,16 @@ import express from "express";
 import compression from "compression";
 import helmet from "helmet";
 import morgan from "morgan";
+import * as socketio from "socket.io";
+import * as path from "path";
+
 import { createConnection } from "typeorm";
 import config from "./config";
 import * as validatorMiddleware from "./middleware/validator";
 import * as authController from "./controllers/auth";
 import * as imageUpdater from "./controllers/imageUpdate";
 import * as blockUser from "./controllers/blockUser";
+import * as scrollFeed from "./controllers/scrolling-feed";
 
 const app = express();
 // Add middlewares
@@ -20,6 +24,28 @@ app.use(
     ':response-time ms - :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
   )
 );
+
+/**
+ * Socket io configuration
+ */
+let http = require("http").Server(app);
+let io = require("socket.io")(http);
+
+/**
+ * 
+ */
+io.on("connection", function (socket: any) {
+  console.log("Socket connected");
+  
+  socket.on("message", (message: any) => {
+    console.log(message);
+    
+  })
+});
+export const sendMessage = ()  => {
+    const socket = io("http://localhost:3000");
+    socket.emit("message", "Hello World");
+}
 
 (async () => {
   try {
@@ -45,10 +71,14 @@ app.use(
     imageUpdater.updateImage
   );
 
+  app.post("/image/like", imageUpdater.imageLike);
+
   app.post(
     "/block/user",
     blockUser.userBlock
   )
+
+  app.post("/scroll/all/user", scrollFeed.scroll);
 
   app.post("*", (req, res) => {
     res.status(404).json({
