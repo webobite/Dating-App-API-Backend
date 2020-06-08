@@ -9,7 +9,15 @@
 
 ## About <a name = "about"></a>
 
-Write about 1-2 paragraphs describing the purpose of your project.
+Create a basic dating app which should contain following features:-
+
+    Test users loading: You can load test users with 10 images in the database.
+    Sign up api : Basic email and password based registration
+    login api : Jwt based login with email and password
+        
+        Image like api : Whenever someone like other user image, a socket io notification will sent to other user but image of person who liked should not be visible to who is being liked
+        
+        Block api: When a user block another user then his/her image should not be shown while blocked user is scrolling random images
 
 ## Getting Started <a name = "getting_started"></a>
 
