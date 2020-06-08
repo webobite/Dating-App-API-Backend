@@ -25,19 +25,22 @@ export class AuthService {
         })
         .getOne();
 
-        console.log("user --> " + user.password);
-        console.log("user --> " + user.salt);
+      // console.log("user --> " + user.password);
+      // console.log("user --> " + user.salt);
 
       if (user) {
         console.log("user --> " + user);
-        ispasswordVerified = await argon2.verify(user.password, (user.salt + password));
+        ispasswordVerified = await argon2.verify(
+          user.password,
+          user.salt + password
+        );
         console.log("is password verified : : : " + ispasswordVerified);
         if (ispasswordVerified) {
-          return {ispasswordVerified, user};
+          return { ispasswordVerified, user };
         }
       }
       return {
-        ispasswordVerified
+        ispasswordVerified,
       };
     } catch (err) {
       throw new Error(err);
@@ -51,54 +54,55 @@ export class AuthService {
    * @param password
    */
   public async register(email: string, password: string) {
-    const doesUserExist = await getConnection()
+    const user = await getConnection()
       .createQueryBuilder()
-      .select()
-      .from(MyUser, "doesUserExist")
+      .select("user")
+      .from(MyUser, "user")
       .where({
         email: email,
       })
       .getOne();
-    console.log("doesnotExist : : : " + doesUserExist);
-    
-    if (doesUserExist.email === email) throw new Error("Username taken");
 
-    // const uid = uuid.v1();
-    const salt = this.generateSalt();
 
-    const newToken = jwt.sign({ email }, process.env.jwtSecret, {
-      expiresIn: "1h",
-    });
+    if (user !== undefined) throw new Error("Username taken");
+    else {
+      const salt = this.generateSalt();
 
-    console.log("token : : : " + newToken);
-
-    try {
       const newToken = jwt.sign({ email }, process.env.jwtSecret, {
         expiresIn: "1h",
       });
 
       console.log("token : : : " + newToken);
-      
-      const passwordHashed = await argon2.hash(salt + password);
-      const user = new MyUser();
-      user.email = email.trim();
-      user.password = passwordHashed;
-      user.isActive = true;
-      // user.uid = uid;
-      user.salt = salt;
-      user.imagePath = null;
-      user.noOfLikes = 0;
-      user.blockedByUserId.push(0);
-      await user.save();
-    } catch (err) {
-      throw new Error(err);
-    }
 
-    return {
-      email,
-      newToken,
-      // uid
-    };
+      try {
+        const newToken = jwt.sign({ email }, process.env.jwtSecret, {
+          expiresIn: "1h",
+        });
+
+        console.log("token : : : " + newToken);
+
+        const passwordHashed = await argon2.hash(salt + password);
+        const user = new MyUser();
+        user.email = email.trim();
+        user.password = passwordHashed;
+        user.isActive = true;
+        // user.uid = uid;
+        user.salt = salt;
+        user.imagePath = null;
+        user.noOfLikes = 0;
+        user.blockedByUserId = [0];
+        // user.blockedByUserId.push(0);
+        await user.save();
+      } catch (err) {
+        throw new Error(err);
+      }
+
+      return {
+        email,
+        newToken,
+        // uid
+      };
+    }
   }
 
   generateSalt() {

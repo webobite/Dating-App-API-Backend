@@ -34,7 +34,7 @@ export class MyUser extends BaseEntity {
   @Column()
   noOfLikes: number;
 
-  @Column("int", {array : true, default : null})
+  @Column("int", {array : true})
   blockedByUserId: number[];
 
   @Column("timestamp", { default: () => "CURRENT_TIMESTAMP" })

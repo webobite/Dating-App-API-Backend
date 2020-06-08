@@ -8,33 +8,37 @@ export class BlockUserService {
   public static async blockUser(email: string, blockedUserEmail: string) {
     try {
 // Find the block user 
-      const blockedUser = await getConnection()
+      const user = await getConnection()
         .createQueryBuilder()
-        .select("blockedUser")
+        .select("user")
+        .from(MyUser, "user")
         .where({
-          email: blockedUserEmail,
+          email: email,
         })
         .getOne();
 
-      console.log("Block user : : " + blockedUser);
+        console.log("user --> " + user);
+        
+        
 
       
-    //   const afterBlocking = await getConnection()
-    //     .createQueryBuilder()
-    //     .update(MyUser)
-    //     .set({
-    //       blockedByUserId: [blockedUser.id],
-    //     })
-    //     .where({
-    //       email: email,
-    //     })
-    //     .execute();
+      const afterBlocking = await getConnection()
+        .createQueryBuilder()
+        .update(MyUser)
+        .set({
+          blockedByUserId: [user.id],
+        })
+        .where({
+          email: email,
+        })
+        .execute();
 
-    //   console.log("After blocking User " + afterBlocking);
+      console.log("After blocking User " + afterBlocking);
+
       return {
         email,
         blockedUserEmail,
-        // afterBlocking,
+        afterBlocking,
       };
     } catch (error) {
       throw new Error(error);
