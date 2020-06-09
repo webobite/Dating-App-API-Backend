@@ -34,6 +34,11 @@ export async function register(req: Request, res: Response) {
   }
 }
 
+/**
+ * Login route
+ * @param req 
+ * @param res 
+ */
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
 
